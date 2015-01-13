@@ -1,2 +1,2 @@
-# frc-2015
+# FRC-2015
 First Robotics Competition 2015
