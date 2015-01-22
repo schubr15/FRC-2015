@@ -1,9 +1,11 @@
 #include"WPILib.h"
+
 enum DriveMode{
 	arcade,
 	tank,
 	arm
 };
+
 class Robot:public IterativeRobot{
 private:
 	RobotDrive robot;
