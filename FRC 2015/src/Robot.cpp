@@ -6,12 +6,19 @@ enum DriveMode{
 	arm
 };
 
+enum Controller{
+	joystick,
+	xbox
+};
+
 class Robot:public IterativeRobot{
 private:
 	RobotDrive robot;
 	Joystick left,right;
 	Gyro gyro;
 	Solenoid solenoidA,solenoidB,solenoidC;
+	DriveMode driveMode=tank;
+	Controller controller=joystick;
 public:
 	Robot():
 		robot(0,1),
@@ -27,23 +34,38 @@ public:
 	void RobotInit(){
 	}
 	void DisabledInit(){
+		robot.SetSafetyEnabled(true);
 	}
 	void DisabledPeriodic(){
 	}
 	void AutonomousInit(){
+		robot.SetSafetyEnabled(false);
 	}
 	void AutonomousPeriodic(){
 	}
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
+		if(left.GetAxisCount()==2){
+			controller=joystick;
+		}
+		else if(left.GetAxisCount()==6){
+			controller=xbox;
+		}
 	}
 	void TeleopPeriodic(){
-		switch(DriveMode){
+		switch(driveMode){
 		case arcade:
 			robot.ArcadeDrive(left);
 			break;
 		case tank:
-			robot.TankDrive(left,right);
+			switch(controller){
+			case joystick:
+				robot.TankDrive(left,right);
+				break;
+			case xbox:
+				robot.TankDrive(left.GetRawAxis(1),left.GetRawAxis(3));
+				break;
+			}
 			break;
 		case arm:
 			break;
