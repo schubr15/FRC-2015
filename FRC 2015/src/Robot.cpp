@@ -22,7 +22,7 @@ public:
 		solenoidB(2),
 		solenoidC(3)
 	{
-		robot.SetExpiration(0.1);
+		robot.SetExpiration(0.1f);
 	}
 	void RobotInit(){
 	}
@@ -35,6 +35,7 @@ public:
 	void AutonomousPeriodic(){
 	}
 	void TeleopInit(){
+		robot.SetSafetyEnabled(true);
 	}
 	void TeleopPeriodic(){
 		switch(DriveMode){
@@ -49,6 +50,8 @@ public:
 		}
 	}
 	void TestInit(){
+		robot.SetSafetyEnabled(false);
+		robot.Drive(1.0f,1.0f);
 	}
 	void TestPeriodic(){
 	}
