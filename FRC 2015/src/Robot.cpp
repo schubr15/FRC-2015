@@ -1,24 +1,22 @@
 #include"WPILib.h"
 
-enum DriveMode{
-	arcade,
-	tank,
-	arm
-};
-
-enum Controller{
-	joystick,
-	xbox
-};
-
 class Robot:public IterativeRobot{
 private:
+	enum class DriveMode{
+		Arcade,
+		Tank,
+		Arm
+	};
+	enum class Controller{
+		Joystick,
+		XBox
+	};
 	RobotDrive robot;
 	Joystick left,right;
 	Gyro gyro;
 	Solenoid solenoidA,solenoidB,solenoidC;
-	DriveMode driveMode=tank;
-	Controller controller=joystick;
+	DriveMode driveMode=DriveMode::Tank;
+	Controller controller=Controller::Joystick;
 public:
 	Robot():
 		robot(0,1),
@@ -46,28 +44,28 @@ public:
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
 		if(left.GetAxisCount()==2){
-			controller=joystick;
+			controller=Controller::Joystick;
 		}
 		else if(left.GetAxisCount()==6){
-			controller=xbox;
+			controller=Controller::XBox;
 		}
 	}
 	void TeleopPeriodic(){
 		switch(driveMode){
-		case arcade:
+		case DriveMode::Arcade:
 			robot.ArcadeDrive(left);
 			break;
-		case tank:
+		case DriveMode::Tank:
 			switch(controller){
-			case joystick:
+			case Controller::Joystick:
 				robot.TankDrive(left,right);
 				break;
-			case xbox:
+			case Controller::XBox:
 				robot.TankDrive(left.GetRawAxis(1),left.GetRawAxis(3));
 				break;
 			}
 			break;
-		case arm:
+		case DriveMode::Arm:
 			break;
 		}
 	}
