@@ -1,33 +1,34 @@
+#include<cinttypes>
+#include<vector>
 #include"WPILib.h"
 
 class Robot:public IterativeRobot{
 private:
-	enum class DriveMode{
+	class Controller:public Joystick{
+	private:
+		enum class Type:uint8_t{
+			Joystick,
+			XBox
+		}type;
+	};
+	enum class DriveMode:uint8_t{
 		Arcade,
 		Tank,
 		Arm
 	};
-	enum class Controller{
-		Joystick,
-		XBox
-	};
 	RobotDrive robot;
-	Joystick left,right;
+	std::vector<Controller> controller={1};
 	Gyro gyro;
 	Solenoid solenoidA,solenoidB,solenoidC;
 	DriveMode driveMode;
-	Controller controller;
 public:
 	Robot():
 		robot(0,1),
-		left(1),
-		right(2),
 		gyro(1),
 		solenoidA(1),
 		solenoidB(2),
 		solenoidC(3),
-		driveMode(DriveMode::Arcade),
-		controller()
+		driveMode(DriveMode::Arcade)
 	{
 		robot.SetExpiration(0.1f);
 	}
@@ -45,25 +46,27 @@ public:
 	}
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
-		if(left.GetAxisCount()==2){
-			controller=Controller::Joystick;
-		}
-		else if(left.GetAxisCount()==6){
-			controller=Controller::XBox;
+		for(uint8_t i;i<controller.size();++i){
+			if(controller[i].GetAxisCount()==2){
+				controller[i].type=Controller::Type::Joystick;
+			}
+			else if(controller[i].GetAxisCount()==6){
+				controller[i].type=Controller::Type::XBox;
+			}
 		}
 	}
 	void TeleopPeriodic(){
 		switch(driveMode){
 		case DriveMode::Arcade:
-			robot.ArcadeDrive(left);
+			robot.ArcadeDrive(controller[1]);
 			break;
 		case DriveMode::Tank:
-			switch(controller){
-			case Controller::Joystick:
-				robot.TankDrive(left,right);
+			switch(controller[1].type){
+			case Controller::Type::Joystick:
+				robot.TankDrive(controller[1],controller[2]);
 				break;
-			case Controller::XBox:
-				robot.TankDrive(left.GetRawAxis(1),left.GetRawAxis(3));
+			case Controller::Type::XBox:
+				robot.TankDrive(controller[1].GetRawAxis(1),controller[1].GetRawAxis(3));
 				break;
 			}
 			break;
