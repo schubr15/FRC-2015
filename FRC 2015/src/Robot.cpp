@@ -15,8 +15,8 @@ private:
 	Joystick left,right;
 	Gyro gyro;
 	Solenoid solenoidA,solenoidB,solenoidC;
-	DriveMode driveMode=DriveMode::Tank;
-	Controller controller=Controller::Joystick;
+	DriveMode driveMode;
+	Controller controller;
 public:
 	Robot():
 		robot(0,1),
@@ -25,7 +25,9 @@ public:
 		gyro(1),
 		solenoidA(1),
 		solenoidB(2),
-		solenoidC(3)
+		solenoidC(3),
+		driveMode(DriveMode::Arcade),
+		controller()
 	{
 		robot.SetExpiration(0.1f);
 	}
