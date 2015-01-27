@@ -6,7 +6,7 @@ private:
 	private:
 		enum class Type:uint8_t{
 			Joystick,
-			XBox
+			GamePad
 		}type;
 	};
 	enum class DriveMode:uint8_t{
@@ -15,13 +15,14 @@ private:
 		Arm
 	};
 	RobotDrive robot;
-	std::vector<Controller> controller={1};
+	Controller controller;
 	Gyro gyro;
 	Solenoid solenoidA,solenoidB,solenoidC;
 	DriveMode driveMode;
 public:
 	Robot():
 		robot(0,1),
+		controller(1),
 		gyro(1),
 		solenoidA(1),
 		solenoidB(2),
@@ -44,28 +45,25 @@ public:
 	}
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
-		for(uint8_t i;i<controller.size();++i){
-			if(controller[i].GetAxisCount()==2){
-				controller[i].type=Controller::Type::Joystick;
-			}
-			else if(controller[i].GetAxisCount()==6){
-				controller[i].type=Controller::Type::XBox;
-			}
+		if(controller.GetAxisCount()==2){
+			controller.type=Controller::Type::Joystick;
+		}
+		else if(controller.GetAxisCount()==6){
+			controller.type=Controller::Type::GamePad;
 		}
 	}
 	void TeleopPeriodic(){
 		switch(driveMode){
 		case DriveMode::Arcade:
-			robot.ArcadeDrive(controller[1]);
+			robot.ArcadeDrive(controller);
 			break;
 		case DriveMode::Tank:
-			switch(controller[1].type){
+			switch(controller.type){
 			case Controller::Type::Joystick:
-				robot.TankDrive(controller[1],controller[2]);
+				robot.TankDrive(controller,controller);
 				break;
-			case Controller::Type::XBox:
-				robot.TankDrive(controller[1].GetRawAxis(1),controller[1].GetRawAxis(3));
-				break;
+			case Controller::Type::GamePad:
+				robot.TankDrive(controller.GetRawAxis(1),controller.GetRawAxis(3));
 			}
 			break;
 		case DriveMode::Arm:
