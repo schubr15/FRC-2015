@@ -1,5 +1,3 @@
-#include<cinttypes>
-#include<vector>
 #include"WPILib.h"
 
 class Robot:public IterativeRobot{
@@ -76,7 +74,7 @@ public:
 	}
 	void TestInit(){
 		robot.SetSafetyEnabled(false);
-		robot.Drive(1.0f,1.0f);
+		robot.TankDrive(1.0f,1.0f);
 	}
 	void TestPeriodic(){
 	}
