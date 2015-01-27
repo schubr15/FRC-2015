@@ -19,7 +19,8 @@ private:
 	RobotDrive robot;
 	Controller controller;
 	Gyro gyro;
-	Solenoid solenoidA,solenoidB,solenoidC;
+	Solenoid solenoidA;
+	DoubleSolenoid solenoidB,solenoidC;
 	DriveMode driveMode;
 public:
 	Robot():
