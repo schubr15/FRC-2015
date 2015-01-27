@@ -1,19 +1,21 @@
 #include"WPILib.h"
 
+class Controller:public Joystick{
+private:
+	enum class Type:uint8_t{
+		Joystick,
+		GamePad
+	}type;
+};
+
+enum class DriveMode:uint8_t{
+	Arcade,
+	Tank,
+	Arm
+};
+
 class Robot:public IterativeRobot{
 private:
-	class Controller:public Joystick{
-	private:
-		enum class Type:uint8_t{
-			Joystick,
-			GamePad
-		}type;
-	};
-	enum class DriveMode:uint8_t{
-		Arcade,
-		Tank,
-		Arm
-	};
 	RobotDrive robot;
 	Controller controller;
 	Gyro gyro;
@@ -67,6 +69,12 @@ public:
 			}
 			break;
 		case DriveMode::Arm:
+			if(controller.GetRawButton(0)){
+				solenoidA.Set(true);
+			}
+			else{
+				solenoidA.Set(false);
+			}
 			break;
 		}
 	}
