@@ -1,36 +1,34 @@
 #include"WPILib.h"
 
-class Controller:public Joystick{
-private:
-	enum class Type:uint8_t{
-		Joystick,
-		GamePad
-	}type;
-};
-
-enum class DriveMode:uint8_t{
-	Arcade,
-	Tank,
-	Arm
-};
-
 class Robot:public IterativeRobot{
 private:
+	class DriveController:public Joystick{
+	public:
+		enum class Type:uint8_t{
+			Joystick,
+			GamePad
+		}type;
+	};
+	enum class DriveMode:uint8_t{
+		Arcade,
+		Tank,
+		Arm
+	}driveMode=DriveMode::Arcade;
 	RobotDrive robot;
-	Controller controller;
+	DriverStation* driverStation;
+	std::vector<DriveController> controller;
 	Gyro gyro;
-	Solenoid solenoidA;
-	DoubleSolenoid solenoidB,solenoidC;
-	DriveMode driveMode;
+	Compressor compressor();
+	Solenoid yAxis,zAxis;
+	DoubleSolenoid xAxis;
 public:
 	Robot():
 		robot(0,1),
-		controller(1),
+		driverStation(),
 		gyro(1),
-		solenoidA(1),
-		solenoidB(2),
-		solenoidC(3),
-		driveMode(DriveMode::Arcade)
+		yAxis(1),
+		zAxis(2),
+		xAxis(3,4)
 	{
 		robot.SetExpiration(0.1f);
 	}
@@ -48,34 +46,32 @@ public:
 	}
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
-		if(controller.GetAxisCount()==2){
-			controller.type=Controller::Type::Joystick;
-		}
-		else if(controller.GetAxisCount()==6){
-			controller.type=Controller::Type::GamePad;
+		for(unsigned int i;i<DriverStation::kJoystickPorts-1;++i){
+			if(driverStation->GetStickAxisCount(i)){
+				if(controller[i].GetAxisCount()==2){
+					controller[i].type=DriveController::Type::Joystick;
+				}
+				else if(controller[i].GetAxisCount()==4){
+					controller[i].type=DriveController::Type::GamePad;
+				}
+			}
 		}
 	}
 	void TeleopPeriodic(){
 		switch(driveMode){
 		case DriveMode::Arcade:
-			robot.ArcadeDrive(controller);
+			robot.ArcadeDrive(controller[1]);
 			break;
 		case DriveMode::Tank:
-			switch(controller.type){
-			case Controller::Type::Joystick:
-				robot.TankDrive(controller,controller);
+			switch(controller[1].type){
+			case DriveController::Type::Joystick:
+				robot.TankDrive(controller[1],controller[2]);
 				break;
-			case Controller::Type::GamePad:
-				robot.TankDrive(controller.GetRawAxis(1),controller.GetRawAxis(3));
+			case DriveController::Type::GamePad:
+				robot.TankDrive(controller[1].GetRawAxis(1),controller[1].GetRawAxis(3));
 			}
 			break;
 		case DriveMode::Arm:
-			if(controller.GetRawButton(0)){
-				solenoidA.Set(true);
-			}
-			else{
-				solenoidA.Set(false);
-			}
 			break;
 		}
 	}
