@@ -51,7 +51,7 @@ public:
 				if(controller[i].GetAxisCount()==2){
 					controller[i].type=DriveController::Type::Joystick;
 				}
-				else if(controller[i].GetAxisCount()==4){
+				else if(controller[i].GetAxisCount()==6){
 					controller[i].type=DriveController::Type::GamePad;
 				}
 			}
