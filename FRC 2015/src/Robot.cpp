@@ -15,7 +15,7 @@ private:
 		Arm
 	}driveMode=DriveMode::Arcade;
 	RobotDrive robot;
-	DriverStation* driverStation;
+	DriverStation * driverStation;
 	std::vector<DriveController> controller;
 	Gyro gyro;
 	Compressor compressor();
