@@ -46,7 +46,7 @@ public:
 	}
 	void TeleopInit(){
 		robot.SetSafetyEnabled(true);
-		for(unsigned int i;i<DriverStation::kJoystickPorts-1;++i){
+		for(uint8_t i;i<DriverStation::kJoystickPorts-1;++i){
 			if(driverStation->GetStickAxisCount(i)){
 				if(controller[i].GetAxisCount()==2){
 					controller[i].type=DriveController::Type::Joystick;
@@ -69,6 +69,23 @@ public:
 				break;
 			case DriveController::Type::GamePad:
 				robot.TankDrive(controller[1].GetRawAxis(1),controller[1].GetRawAxis(3));
+				if(controller[1].GetRawAxis(4)>0.5f&&controller[1].GetRawAxis(5)>0.5f){
+					yAxis.Set(true);
+					zAxis.Set(true);
+				}
+				else{
+					yAxis.Set(false);
+					zAxis.Set(false);
+				}
+				if(controller[1].GetRawButton(5)){
+					xAxis.Set(DoubleSolenoid::kForward);
+				}
+				else if(controller[1].GetRawButton(6)){
+					xAxis.Set(DoubleSolenoid::kReverse);
+				}
+				else{
+					xAxis.Set(DoubleSolenoid::kOff);
+				}
 			}
 			break;
 		case DriveMode::Arm:
