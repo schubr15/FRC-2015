@@ -11,9 +11,8 @@ private:
 	};
 	enum class DriveMode:uint8_t{
 		Arcade,
-		Tank,
-		Arm
-	}driveMode=DriveMode::Arcade;
+		Tank
+	}driveMode=DriveMode::Tank;
 	RobotDrive robot;
 	DriverStation * driverStation;
 	std::vector<DriveController> controller;
@@ -51,7 +50,7 @@ public:
 				if(controller[i].GetAxisCount()==2){
 					controller[i].type=DriveController::Type::Joystick;
 				}
-				else if(controller[i].GetAxisCount()==6){
+				else{
 					controller[i].type=DriveController::Type::GamePad;
 				}
 			}
@@ -60,7 +59,34 @@ public:
 	void TeleopPeriodic(){
 		switch(driveMode){
 		case DriveMode::Arcade:
-			robot.ArcadeDrive(controller[1]);
+			switch(controller[1].type){
+			case DriveController::Type::Joystick:
+				robot.ArcadeDrive(controller[1]);
+				break;
+			case DriveController::Type::GamePad:
+				robot.ArcadeDrive(controller[1]);
+				if(controller[1].GetRawAxis(3)<0.5f){
+					yAxis.Set(true);
+					zAxis.Set(true);
+				}
+				else{
+					yAxis.Set(false);
+					zAxis.Set(false);
+				}
+				if(controller[1].GetRawAxis(2)<0.5f){
+					xAxis.Set(DoubleSolenoid::kReverse);
+				}
+				else if(controller[1].GetRawAxis(2)>0.5f){
+					xAxis.Set(DoubleSolenoid::kForward);
+				}
+				else{
+					xAxis.Set(DoubleSolenoid::kOff);
+				}
+				if(controller[1].GetRawButton(10)){
+					driveMode=DriveMode::Tank;
+				}
+				break;
+			}
 			break;
 		case DriveMode::Tank:
 			switch(controller[1].type){
@@ -69,7 +95,7 @@ public:
 				break;
 			case DriveController::Type::GamePad:
 				robot.TankDrive(controller[1].GetRawAxis(1),controller[1].GetRawAxis(3));
-				if(controller[1].GetRawAxis(4)>0.5f&&controller[1].GetRawAxis(5)>0.5f){
+				if(controller[1].GetRawButton(7)&&controller[1].GetRawButton(8)){
 					yAxis.Set(true);
 					zAxis.Set(true);
 				}
@@ -86,15 +112,17 @@ public:
 				else{
 					xAxis.Set(DoubleSolenoid::kOff);
 				}
+				if(controller[1].GetRawButton(9)){
+					driveMode=DriveMode::Arcade;
+				}
+				break;
 			}
-			break;
-		case DriveMode::Arm:
 			break;
 		}
 	}
 	void TestInit(){
 		robot.SetSafetyEnabled(false);
-		robot.TankDrive(1.0f,1.0f);
+		robot.TankDrive(0.2f,0.2f);
 	}
 	void TestPeriodic(){
 	}
